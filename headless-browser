@@ -1,0 +1,30 @@
+var Browser = require("zombie");
+
+// server
+require('net').createServer(function (socket) {
+	console.log("connected");
+
+	socket.on('data', function (data) {
+		var res = String(data).split(" ");
+		var datetime = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+		var level_password = res[0];
+		var url = res[1];
+		console.log("Time: ",datetime);
+		console.log("password: "+level_password);
+		console.log("url: "+url);
+	
+		browser = new Browser();
+		browser.setCookie({name: "level-password", domain: "example.com", value: level_password});
+		browser.visit(url, function () {
+			console.log("status code: ",browser.statusCode);
+		});
+		browser.on('error', function(error) {
+  			console.error(error);
+		});
+	});
+	socket.on('error', function(error) {
+		console.error(error);
+	});
+})
+
+.listen(8080);
